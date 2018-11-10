@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/rec">
+        <file>icons/computer.png</file>
+        <file>icons/exit.png</file>
+        <file>icons/floppy-disk.png</file>
+        <file>icons/new-file.png</file>
+        <file>icons/open-folder-outline.png</file>
+        <file>icons/add-new-document.png</file>
+    </qresource>
+</RCC>
