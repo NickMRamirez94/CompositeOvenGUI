@@ -19,7 +19,16 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    ///
+    /// \brief MainWindow::MainWindow
+    /// Constructor.
+    ///
     explicit MainWindow( QWidget *parent = nullptr );
+
+    ///
+    /// \brief MainWindow::~MainWindow
+    /// Destructor
+    ///
     ~MainWindow();
 
 private slots:
@@ -60,37 +69,44 @@ private slots:
     void on_actionGraph_triggered();
 
     ///
-    /// \brief add_button_pressed
+    /// \brief MainWindow::add_button_pressed
+    /// Slot that adds row to cure cycle table.
     ///
     void add_button_pressed();
 
     ///
-    /// \brief remove_button_pressed
+    /// \brief MainWindow::remove_button_pressed
+    /// Slot that removes row from cure cycle table.
     ///
     void remove_button_pressed();
 
     ///
-    /// \brief create_new_cycle
-    /// \param data
+    /// \brief MainWindow::create_new_cycle
+    /// \param data - List of cycle name, temperature, and rate
+    /// Parses data. Creates new cure cycle table to be displayed on 
+    /// new tab of TabWidget. Connects cellChanged signal to updateCells slot.
     ///
     void create_new_cycle( QStringList data );
 
     ///
-    /// \brief closeTab
-    /// \param tab
+    /// \brief MainWindow::closeTab
+    /// \param tab - Number of the tab to close of TabWidget.
+    /// Will close the specified tab of TabWidget. 
     ///
     void closeTab( int tab );
 
     ///
-    /// \brief updateCells
-    /// \param row
-    /// \param column
+    /// \brief MainWindow::updateCells
+    /// \param row - Row of cell to update.
+    /// \param column - Column of cell to update.
+    /// Updates information based on the updated cell.
     ///
     void updateCells( int row, int column );
 
     ///
-    /// \brief updateCombo
-    /// \param index
+    /// \brief MainWindow::updateCombo
+    /// \param index - Index number of current combobox selection.
+    /// Updates information based on the updated combobox.
     ///
     void updateCombo( int index );
 
@@ -98,23 +114,30 @@ private:
     ///
     /// \brief ui
     /// Instance of the MainWindow.
+    ///
     Ui::MainWindow *ui;
 
+    ///
+    /// \brief cureCycleTabWidget
+    /// Instance of QTabWidget for MainWindow
+    ///
     QTabWidget * cureCycleTabWidget;
 
     ///
     /// \brief cure_cycle_dialog_
     /// Instance of the Cure Cycle Dialog.
+    ///
     CureCycleDialog *cure_cycle_dialog_;
 
     ///
     /// \brief graph_dialog_
     /// Instance of the Graph Dialog.
+    ///
     GraphDialog *graph_dialog_;
 
     ///
-    /// \brief readFile
-    /// \param file_name the name of the cure cycle file.
+    /// \brief MainWindow::readFile
+    /// \param file_path - The path of the cure cycle file.
     /// \return boolean true if successful false otherwise.
     /// Takes a cure cycle file and populates a new tab with
     /// the data from the file.
@@ -122,17 +145,19 @@ private:
     bool ReadFile( const QString  &file_path );
 
     ///
-    /// \brief LoadData
-    /// \param cure_cycle_data
+    /// \brief MainWindow::LoadData
+    /// \param cure_cycle_data - QString holding all cure cycle data
+    /// Loads the data from cure_cycle_data into the QTableWidget
     ///
     void LoadData ( const QString &cure_cycle_data );
 
     ///
-    /// \brief InitializeTable
-    /// \param cycle_name
-    /// \param temperature
-    /// \param rate
-    /// \return
+    /// \brief MainWindow::InitializeTable
+    /// \param cycle_name - Cycle name.
+    /// \param temperature - Initial temperature.
+    /// \param rate - INitial rate.
+    /// \return Pointer to the QTableWidget created.
+    /// Creates and return pointer to QTableWidget with initial specified data.
     ///
     QTableWidget * InitializeTable( const QString &cycle_name, const QString &temperature, const QString &rate );
 };

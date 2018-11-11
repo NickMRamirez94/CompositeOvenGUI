@@ -2,6 +2,10 @@
 #include "ui_curecycledialog.h"
 #include <QMessageBox>
 
+///
+/// \brief CureCycleDialog::CureCycleDialog
+/// \param parent - Parent widget.
+///
 CureCycleDialog::CureCycleDialog( QWidget *parent ) :
     QDialog( parent ),
     ui( new Ui::CureCycleDialog )
@@ -9,11 +13,22 @@ CureCycleDialog::CureCycleDialog( QWidget *parent ) :
     ui->setupUi( this );
 }
 
+///
+/// \brief CureCycleDialog::~CureCycleDialog
+///
 CureCycleDialog::~CureCycleDialog()
 {
     delete ui;
 }
 
+///
+/// \brief CureCycleDialog::on_doneButton_clicked
+/// - Retrieve cycle name, temperature, and rate from LineEdit objects
+/// - Check to make sure cycle name is not empty
+/// - Check to make sure temperature and rate are numbers
+/// - Append data to QStringList
+/// - Emit send_name_temp_rate signal with QStringList data
+///
 void CureCycleDialog::on_doneButton_clicked()
 {
     QString cycle_name = ui->cyclenamelineEdit->text();
@@ -44,6 +59,10 @@ void CureCycleDialog::on_doneButton_clicked()
     }
 }
 
+///
+/// \brief CureCycleDialog::on_cancelButton_clicked
+/// Close the CureCycleDialog.
+///
 void CureCycleDialog::on_cancelButton_clicked()
 {
     this->close();

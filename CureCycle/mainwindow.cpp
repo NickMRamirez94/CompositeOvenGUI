@@ -23,7 +23,7 @@ enum StageType
 
 ///
 /// \brief MainWindow::MainWindow
-/// \param parent
+/// \param parent - Parent widget.
 ///
 MainWindow::MainWindow( QWidget *parent ) :
     QMainWindow( parent ),
@@ -37,6 +37,9 @@ MainWindow::MainWindow( QWidget *parent ) :
     connect( cureCycleTabWidget, SIGNAL( tabCloseRequested( int ) ), this, SLOT( closeTab( int ) ) );
 }
 
+///
+/// \brief MainWindow::~MainWindow
+///
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -44,7 +47,8 @@ MainWindow::~MainWindow()
 
 ///
 /// \brief MainWindow::closeTab
-/// \param tab
+/// \param tab - Number of the tab to close of TabWidget.
+/// Remove the specified tab from the CureCycleTabWidget.
 ///
 void MainWindow::closeTab( int tab )
 {
@@ -52,6 +56,7 @@ void MainWindow::closeTab( int tab )
 }
 ///
 /// \brief MainWindow::on_actionExit_triggered
+/// Quit the application.
 ///
 void MainWindow::on_actionExit_triggered()
 {
@@ -68,8 +73,8 @@ void MainWindow::on_actionSave_Cure_Cycle_triggered()
 
 ///
 /// \brief MainWindow::on_actionLoad_Cure_Cycle_triggered
-/// Triggers file dialog for the user to select cure cycle file.
-/// This file will be parsed through another class method.
+/// - Triggers file dialog for the user to select cure cycle file.
+/// - Call ReadFile() passing the specified file path.
 ///
 void MainWindow::on_actionLoad_Cure_Cycle_triggered()
 {
@@ -82,7 +87,9 @@ void MainWindow::on_actionLoad_Cure_Cycle_triggered()
 
 ///
 /// \brief MainWindow::on_actionCreate_New_Cure_Cycle_triggered
-/// Triggers an instance of the CureCycleDialog class.
+/// - Triggers an instance of the CureCycleDialog class.
+/// - Connect send_name_temp_rate signal to create_new_cycle slot.
+///
 void MainWindow::on_actionCreate_New_Cure_Cycle_triggered()
 {
     cure_cycle_dialog_ = new CureCycleDialog( this );
@@ -92,7 +99,10 @@ void MainWindow::on_actionCreate_New_Cure_Cycle_triggered()
 
 ///
 /// \brief MainWindow::create_new_cycle
-/// \param data
+/// \param data - QStringList containing cycle name, temperature, and rate
+/// - Retrieve corresponding data from parameter.
+/// - Call InitializeTable() passing that data.
+/// - Connect cellChanged signal to updateCells() slot with the returned QTableWidget.
 ///
 void MainWindow::create_new_cycle( QStringList data )
 {
@@ -106,6 +116,8 @@ void MainWindow::create_new_cycle( QStringList data )
 
 ///
 /// \brief MainWindow::on_actionGraph_triggered
+/// - Trigget QFileDialog to get the file path.
+/// - Create instance of GraphDialog passing that retrieved file path.
 ///
 void MainWindow::on_actionGraph_triggered()
 {
@@ -118,7 +130,12 @@ void MainWindow::on_actionGraph_triggered()
 }
 
 ///
-/// \brief MainWindow::readFile
+/// \brief MainWindow::ReadFile
+/// \param file_path - QString of file path to file to read.
+/// \return - Boolean. False if unsuccesful retrieving data from file. True if successful.
+/// - Open file.
+/// - Read data from file.
+/// - Call LoadData() passing read text stream.
 ///
 bool MainWindow::ReadFile( const QString &file_path )
 {
@@ -140,7 +157,10 @@ bool MainWindow::ReadFile( const QString &file_path )
 
 ///
 /// \brief MainWindow::LoadData
-/// \param cure_cycle_data
+/// \param cure_cycle_data - Data read from cure cycle file.
+/// - Call InitializeTable() passing initial ramp and cycle name.
+/// - Parse remaining data and load QTableWidget with data.
+/// - Connect QTableWidget cell signals and combobox signals.
 ///
 void MainWindow::LoadData( const QString &cure_cycle_data )
 {
@@ -216,6 +236,8 @@ void MainWindow::LoadData( const QString &cure_cycle_data )
 
 ///
 /// \brief MainWindow::add_button_pressed
+/// - Add new row to the QTableWidget.
+/// - Connect combobox signal to updateCombo() slot.
 ///
 void MainWindow::add_button_pressed()
 {
@@ -245,6 +267,7 @@ void MainWindow::add_button_pressed()
 
 ///
 /// \brief MainWindow::remove_button_pressed
+/// Remove last row from QTableWidget.
 ///
 void MainWindow::remove_button_pressed()
 {
@@ -255,10 +278,14 @@ void MainWindow::remove_button_pressed()
 
 ///
 /// \brief MainWindow::InitializeTable
-/// \param name
-/// \param temperature
-/// \param rate
-/// \return
+/// \param name - Cure cycle name.
+/// \param temperature - Cure cycle initial ramp temperature.
+/// \param rate - Cure cycle initial ramp rate.
+/// \return - Pointer to created QTableWidget.
+/// - Append header.
+/// - Create QComboBox and QLabel.
+/// - Append data to new row of QTableWidget
+/// - Add add and remove buttons and connect their signals and slots.
 ///
 QTableWidget * MainWindow::InitializeTable( const QString &cycle_name, const QString &temperature, const QString &rate )
 {
@@ -315,14 +342,14 @@ QTableWidget * MainWindow::InitializeTable( const QString &cycle_name, const QSt
 
 ///
 /// \brief MainWindow::updateCells
-/// \param row
-/// \param column
+/// \param row - Row number of cell that was modified.
+/// \param column - column number of cell that was modified.
+/// - Get QTableWidget on current tab.
+/// - Check if next stage is Hold stage.
+/// - If it is, then update its temperature to edited temperature.
 ///
-/// If next stage is hold: update its value to that of changed cell
-/// If cell was changed it must be ramp/deramp
 void MainWindow::updateCells( int row, int column )
 {
-    //TODO: Causing segfault when editing last row because going out of bounds
     const int stage_column = 0;
     const int temperature_column = 1;
     QTableWidget * table = cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
@@ -346,11 +373,11 @@ void MainWindow::updateCells( int row, int column )
 
 ///
 /// \brief MainWindow::updateCombo
-/// \param index
+/// \param index - Index of QComboBox that combobox was changed to.
+/// - If hold stage, then make temperature uneditable, update hold temperature to that
+/// of previous stage, and update label.
+/// - It not hold stage, then make temperature editable and update label.
 ///
-/// Set temperature editability
-/// Set label
-/// If hold: update hold temperature to temperature of previous stage
 void MainWindow::updateCombo( int index )
 {
     QTableWidget * table = cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
