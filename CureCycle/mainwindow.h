@@ -111,6 +111,21 @@ private slots:
     void updateCombo( int index );
 
 private:
+    enum StageType
+    {
+        kRamp,
+        kHold,
+        kDeramp
+    };
+
+    enum Column
+    {
+        kStageTypeColumn = 0,
+        kTemperatureColumn = 1,
+        kRateTimeColumn = 2,
+        kLabelColumn = 3
+    };
+
     ///
     /// \brief ui
     /// Instance of the MainWindow.
@@ -135,6 +150,8 @@ private:
     ///
     GraphDialog *graph_dialog_;
 
+    QStringList cycle_names_;
+
     ///
     /// \brief MainWindow::readFile
     /// \param file_path - The path of the cure cycle file.
@@ -149,7 +166,7 @@ private:
     /// \param cure_cycle_data - QString holding all cure cycle data
     /// Loads the data from cure_cycle_data into the QTableWidget
     ///
-    void LoadData ( const QString &cure_cycle_data );
+    void LoadData( QStringList &data );
 
     ///
     /// \brief MainWindow::InitializeTable
@@ -160,6 +177,10 @@ private:
     /// Creates and return pointer to QTableWidget with initial specified data.
     ///
     QTableWidget * InitializeTable( const QString &cycle_name, const QString &temperature, const QString &rate );
+
+    QStringList GetData();
+
+    bool SaveData( const QStringList &cycle_data );
 };
 
 #endif // MAINWINDOW_H
