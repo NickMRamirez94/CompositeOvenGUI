@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+//Qt Library Files
 #include <QFileDialog>
 #include <QDir>
 #include <QMessageBox>
@@ -10,10 +12,12 @@
 #include <QScrollArea>
 #include <QComboBox>
 #include <QPushButton>
-#include "curecycle.h"
-#include "curecyclestage.h"
 #include <QLabel>
 
+//Custom Files
+#include "curecycle.h"
+#include "curecyclestage.h"
+#include "utilities.h"
 
 ///
 /// \brief MainWindow::MainWindow
@@ -63,8 +67,14 @@ void MainWindow::on_actionExit_triggered()
 ///
 void MainWindow::on_actionSave_Cure_Cycle_triggered()
 {
-    QStringList cure_cycle_data = GetData();
-    SaveData( cure_cycle_data );
+    QTableWidget * table = GetTableWidget();
+    if( table )
+    {
+        QStringList cure_cycle_data = Utilities::GetData( GetTableWidget() );
+        QString file_path = QFileDialog::getSaveFileName( this, "Save Cure Cycle", QDir::homePath() );
+        QString cycle_name = cycle_names_[cureCycleTabWidget->currentIndex()];
+        Utilities::SaveData( cure_cycle_data, cycle_name, file_path );
+    }
 }
 
 ///
@@ -151,7 +161,6 @@ bool MainWindow::ReadFile( const QString &file_path )
     QString header = data[0];
     if( header != "CURECYCLEFILE" )
     {
-        qInfo() << "Header: " << header;
         QMessageBox::warning( this, "Open File Failed", "Incorrect File Type" );
         status = false;
     }
@@ -211,7 +220,7 @@ void MainWindow::LoadData( QStringList &data )
             stage_type = "Hold";
             index = kHold;
             temperature_item->setFlags( temperature_item->flags() ^ Qt::ItemIsEditable );
-            label->setText( "Seconds" );
+            label->setText( "Minutes" );
         }
         else if( stage_text[0] == "D" )
         {
@@ -249,7 +258,7 @@ void MainWindow::LoadData( QStringList &data )
 void MainWindow::add_button_pressed()
 {
     //Add row
-    QTableWidget * table = cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
+    QTableWidget * table = GetTableWidget();
     table->insertRow( table->rowCount() );
     const int new_row = table->rowCount() - 1;
 
@@ -279,7 +288,7 @@ void MainWindow::add_button_pressed()
 void MainWindow::remove_button_pressed()
 {
     //Remove row
-    QTableWidget * table = cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
+    QTableWidget * table = GetTableWidget();
     table->removeRow( table->rowCount() - 1 );
 }
 
@@ -358,22 +367,34 @@ QTableWidget * MainWindow::InitializeTable( const QString &cycle_name, const QSt
 ///
 void MainWindow::updateCells( int row, int column )
 {
-    QTableWidget * table = cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
-    //Don't update cell was in law row
-    if( row < table->rowCount() - 1 )
+    QTableWidget * table = GetTableWidget();
+
+    //Make sure updated cell is a number
+    QString edited_text = table->item( row, column )->text();
+    if( Utilities::CheckNumber( edited_text ) )
     {
-        QComboBox * stage_type_combo = static_cast<QComboBox *>( table->cellWidget( row + 1, kStageTypeColumn ) );
-
-        const int next_stage_index = stage_type_combo->currentIndex();
-        //Update value
-        if( next_stage_index == kHold )
+        //Don't update cell was in law row
+        if( row < table->rowCount() - 1 )
         {
-            QTableWidgetItem * temperature_item_edited = table->item( row, kTemperatureColumn );
-            const QString temperature = temperature_item_edited->text();
-            QTableWidgetItem * temperature_item_hold = table->item( row + 1, kTemperatureColumn );
-            temperature_item_hold->setText( temperature );
+            QComboBox * stage_type_combo = static_cast<QComboBox *>( table->cellWidget( row + 1, kStageTypeColumn ) );
 
+            const int next_stage_index = stage_type_combo->currentIndex();
+            //Update value
+            if( next_stage_index == kHold )
+            {
+                QTableWidgetItem * temperature_item_edited = table->item( row, kTemperatureColumn );
+                const QString temperature = temperature_item_edited->text();
+                QTableWidgetItem * temperature_item_hold = table->item( row + 1, kTemperatureColumn );
+                temperature_item_hold->setText( temperature );
+
+            }
         }
+    }
+    else
+    {
+        table->item( row, kTemperatureColumn )->setText( "0" );
+        table->item( row, kRateTimeColumn )->setText( "0" );
+        QMessageBox::warning( this, "Data Error", "Data must be a positive number" );
     }
 }
 
@@ -395,7 +416,7 @@ void MainWindow::updateCombo( int index )
     if( index == kHold )
     {
         temperature_item->setFlags( temperature_item->flags() ^ Qt::ItemIsEditable );
-        label->setText( "Seconds" );
+        label->setText( "Minutes" );
         //Update hold temperature to temperature of previous stage
         const QString temperature = table->item( row - 1, kTemperatureColumn )->text();
         temperature_item->setText( temperature );
@@ -408,80 +429,11 @@ void MainWindow::updateCombo( int index )
     }
 }
 
-QStringList MainWindow::GetData()
+///
+/// \brief MainWindow::GetTableWidget
+/// \return - Pointer to QTableWidget on current tab
+///
+inline QTableWidget * MainWindow::GetTableWidget()
 {
-    QTableWidget * table = cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
-    QStringList cure_cycle_data;
-    QString cycle_stage;
-    QString type;
-    QString temperature;
-    QString rate_time;
-
-    if( table == NULL )
-    {
-        return cure_cycle_data;
-    }
-    else
-    {
-        const int row_count = table->rowCount();
-
-        for( int i = 0; i < row_count; i++ )
-        {
-            switch( static_cast<QComboBox *>( table->cellWidget( i, kStageTypeColumn ) )->currentIndex() )
-            {
-                case kRamp:
-                    type = "R";
-                    break;
-                case kHold:
-                    type = "H";
-                    break;
-                case kDeramp:
-                    type = "D";
-                    break;
-            }
-
-            temperature = table->item( i, kTemperatureColumn )->text();
-            rate_time = table->item( i, kRateTimeColumn )->text();
-
-            cycle_stage.clear();
-            cycle_stage.append( type );
-            cycle_stage.append( ":" );
-            cycle_stage.append( temperature );
-            cycle_stage.append( ":" );
-            cycle_stage.append( rate_time );
-            cycle_stage.append( "\n" );
-            cure_cycle_data.append( cycle_stage );
-        }
-        return cure_cycle_data;
-    }
-}
-
-bool MainWindow::SaveData( const QStringList &cycle_data )
-{
-    QString file_path = QFileDialog::getSaveFileName( this, "Save Cure Cycle", QDir::homePath() );
-
-    if( file_path.isEmpty() || cycle_data.isEmpty() )
-    {
-        return false;
-    }
-    else
-    {
-        QFile file( file_path );
-        if( !file.open( QFile::WriteOnly ) )
-        {
-            return false;
-        }
-
-        const int stage_count = cycle_data.count();
-
-        QTextStream stream( &file );
-        stream << "CURECYCLEFILE\n";
-        stream << cycle_names_[cureCycleTabWidget->currentIndex()] << "\n";
-        for(int i = 0; i < stage_count; i++)
-        {
-            stream << cycle_data[i];
-        }
-        file.close();
-    }
-    return true;
+    return cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
 }

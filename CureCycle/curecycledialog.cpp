@@ -1,5 +1,8 @@
 #include "curecycledialog.h"
 #include "ui_curecycledialog.h"
+#include "utilities.h"
+
+//Qt Library Files
 #include <QMessageBox>
 
 ///
@@ -32,19 +35,17 @@ CureCycleDialog::~CureCycleDialog()
 void CureCycleDialog::on_doneButton_clicked()
 {
     QString cycle_name = ui->cyclenamelineEdit->text();
-    //Remove whitespace
-    cycle_name = cycle_name.simplified();
     QString temperature = ui->templineEdit->text();
     QString rate = ui->ratelineEdit->text();
+    cycle_name = cycle_name.simplified();
 
-    QRegExp re("\\d*");
-    if( cycle_name.isEmpty() )
+    if( !Utilities::CheckName( cycle_name ) )
     {
-        QMessageBox::warning( this, "Cycle Name Error", "Cycle Name is empty" );
+        QMessageBox::warning( this, "Cycle Name Error", "Requirements: Non-empty | Max limit 20 characters" );
     }
-    else if( !re.exactMatch( temperature ) || !re.exactMatch( rate ) )
+    else if( !Utilities::CheckNumber( temperature) || !Utilities::CheckNumber( rate ) )
     {
-        QMessageBox::warning( this, "Temperature or Rate Error", "Only digits allowed" );
+        QMessageBox::warning( this, "Temperature or Rate Error", "Must be positive number" );
     }
     else
     {

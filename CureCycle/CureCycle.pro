@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui widgets
+QT       += core gui serialport
 
 TARGET = CureCycle
 TEMPLATE = app
@@ -28,14 +29,16 @@ SOURCES += \
     curecycledialog.cpp \
     graphdialog.cpp \
     curecyclestage.cpp \
-    curecycle.cpp
+    curecycle.cpp \
+    utilities.cpp
 
 HEADERS += \
         mainwindow.h \
     curecycledialog.h \
     graphdialog.h \
     curecyclestage.h \
-    curecycle.h
+    curecycle.h \
+    utilities.h
 
 FORMS += \
         mainwindow.ui \

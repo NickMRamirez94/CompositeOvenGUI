@@ -178,9 +178,7 @@ private:
     ///
     QTableWidget * InitializeTable( const QString &cycle_name, const QString &temperature, const QString &rate );
 
-    QStringList GetData();
-
-    bool SaveData( const QStringList &cycle_data );
+    inline  QTableWidget * GetTableWidget();
 };
 
 #endif // MAINWINDOW_H
