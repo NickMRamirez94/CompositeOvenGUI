@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QComboBox>
 #include <QtSerialPort/QSerialPort>
+#include <QDebug>
 
 Utilities::Utilities()
 {
@@ -76,64 +77,75 @@ void Utilities::LoadData( const QStringList &data )
 
 bool Utilities::SendData( const QString &name, const QStringList &data )
 {
+    bool status;
     QSerialPort serial;
-    serial.setPortName( "com4" );
+    //Need to not hardcode port name
+    serial.setPortName( "ttyS4" );
     serial.setBaudRate( QSerialPort::Baud115200 );
     serial.setDataBits( QSerialPort::Data8 );
     serial.setParity( QSerialPort::NoParity );
     serial.setStopBits( QSerialPort::OneStop );
     serial.setFlowControl( QSerialPort::NoFlowControl );
-    serial.open( QIODevice::WriteOnly );
 
-    //Send name with space filler if needed
-    const int max_length = 20;
-    QByteArray name_byte = name.toLocal8Bit();
-    const char * name_serial = name_byte.data();
-    serial.write( name_serial, max_length );
-
-    int fill_bytes = 0;
-    if( name.length() < max_length )
+    if( serial.open( QIODevice::WriteOnly ) )
     {
-        fill_bytes = max_length - name.length();
-    }
-    for( int i = 0; i < fill_bytes; i++ )
-    {
-        serial.write( " " );
-    }
+        //Send name with space filler if needed
+        const int max_length = 20;
+        QByteArray name_byte = name.toLocal8Bit();
+        const char * name_serial = name_byte.data();
+        serial.write( name_serial, max_length );
 
-    //Send data
-    const int stage_count = data.count();
-    const QByteArray hold_filler( 2, 0 );
-    for( int i = 0; i < stage_count; i++ )
-    {
-        QStringList stage_text = data[i].split( ":" );
-        QString stage_type = stage_text[0];
-        QString temperature = stage_text[1];
-        QString rate_time = stage_text[2];
-
-        QByteArray type_byte = stage_type.toLocal8Bit();
-        char * type_serial = type_byte.data();
-
-        uint16_t temperature_int = temperature.toUShort();
-        uint16_t rate_time_int = rate_time.toUShort();
-        QByteArray temperature_byte;
-        QByteArray rate_time_byte;
-        temperature_byte.setNum( temperature_int );
-        rate_time_byte.setNum( rate_time_int );
-
-        if( stage_type == "H" )
+        int fill_bytes = 0;
+        if( name.length() < max_length )
         {
-            serial.write( type_serial, 1 );
-            serial.write( rate_time_byte );
-            serial.write( hold_filler );
+            fill_bytes = max_length - name.length();
         }
-        else
+        for( int i = 0; i < fill_bytes; i++ )
         {
-            serial.write( type_serial, 1 );
-            serial.write( rate_time_byte );
-            serial.write( temperature_byte );
+            serial.write( " " );
         }
+
+        //Send data
+        const int stage_count = data.count();
+        const QByteArray hold_filler( 2, 0 );
+        for( int i = 0; i < stage_count; i++ )
+        {
+            QStringList stage_text = data[i].split( ":" );
+            QString stage_type = stage_text[0];
+            QString temperature = stage_text[1];
+            QString rate_time = stage_text[2];
+
+            QByteArray type_byte = stage_type.toLocal8Bit();
+            char * type_serial = type_byte.data();
+
+            uint16_t temperature_int = temperature.toUShort();
+            uint16_t rate_time_int = rate_time.toUShort();
+            QByteArray temperature_byte;
+            QByteArray rate_time_byte;
+            temperature_byte.setNum( temperature_int );
+            rate_time_byte.setNum( rate_time_int );
+
+            if( stage_type == "H" )
+            {
+                serial.write( type_serial, 1 );
+                serial.write( rate_time_byte );
+                serial.write( hold_filler );
+            }
+            else
+            {
+                serial.write( type_serial, 1 );
+                serial.write( rate_time_byte );
+                serial.write( temperature_byte );
+            }
+        }
+        status = true;
     }
+    else
+    {
+        qDebug() << "Serial Port failed to open";
+        status = false;
+    }
+    return status;
 }
 
 QStringList Utilities::GetData( const QTableWidget * table )

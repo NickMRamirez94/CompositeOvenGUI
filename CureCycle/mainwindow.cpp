@@ -13,6 +13,8 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QSerialPortInfo>
+#include <QList>
 
 //Custom Files
 #include "curecycle.h"
@@ -101,6 +103,31 @@ void MainWindow::on_actionCreate_New_Cure_Cycle_triggered()
     cure_cycle_dialog_ = new CureCycleDialog( this );
     cure_cycle_dialog_->show();
     connect( cure_cycle_dialog_, SIGNAL( send_name_temp_rate( QStringList ) ), this, SLOT( create_new_cycle( QStringList ) ) );
+}
+
+///
+/// \brief MainWindow::on_actionSend_Data_triggered
+/// - Uses Utilities::SendData() to send cure cycle data on current
+/// QTabWidet to composite oven.
+///
+void MainWindow::on_actionSend_Data_triggered()
+{
+    //List names of ports
+    for (QSerialPortInfo port : QSerialPortInfo::availablePorts())
+    {
+        //Their is some sorting to do for just list the port I want, with vendor Id & product Id
+        qDebug() << port.portName() << port.vendorIdentifier() << port.productIdentifier()
+                 << port.hasProductIdentifier() << port.hasVendorIdentifier() << port.isBusy();
+    }
+    //Verify that there is an exisiting cure cycle
+    if( CheckTabWidget() )
+    {
+        QMessageBox::StandardButton reply = QMessageBox::question( this, "", "Is Oven Ready?", QMessageBox::Yes|QMessageBox::No );
+        if( reply == QMessageBox::Yes )
+        {
+            Utilities::SendData( cycle_names_[cureCycleTabWidget->currentIndex()], Utilities::GetData( GetTableWidget() ) );
+        }
+    }
 }
 
 ///
@@ -436,4 +463,9 @@ void MainWindow::updateCombo( int index )
 inline QTableWidget * MainWindow::GetTableWidget()
 {
     return cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
+}
+
+inline bool MainWindow::CheckTabWidget()
+{
+    return cureCycleTabWidget->count();
 }

@@ -69,6 +69,12 @@ private slots:
     void on_actionGraph_triggered();
 
     ///
+    /// \brief on_actionSend_Data_triggered
+    /// Slot that sends data to composite oven controller.
+    ///
+    void on_actionSend_Data_triggered();
+
+    ///
     /// \brief MainWindow::add_button_pressed
     /// Slot that adds row to cure cycle table.
     ///
@@ -179,6 +185,8 @@ private:
     QTableWidget * InitializeTable( const QString &cycle_name, const QString &temperature, const QString &rate );
 
     inline  QTableWidget * GetTableWidget();
+
+    inline bool CheckTabWidget();
 };
 
 #endif // MAINWINDOW_H

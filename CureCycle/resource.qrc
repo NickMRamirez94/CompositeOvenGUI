@@ -6,5 +6,6 @@
         <file>icons/new-file.png</file>
         <file>icons/open-folder-outline.png</file>
         <file>icons/add-new-document.png</file>
+        <file>icons/share-folder.png</file>
     </qresource>
 </RCC>
