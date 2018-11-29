@@ -6,6 +6,7 @@
 
 QT       += core gui widgets
 QT       += core gui serialport
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = CureCycle
 TEMPLATE = app
@@ -30,7 +31,8 @@ SOURCES += \
     graphdialog.cpp \
     curecyclestage.cpp \
     curecycle.cpp \
-    utilities.cpp
+    utilities.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,7 +40,8 @@ HEADERS += \
     graphdialog.h \
     curecyclestage.h \
     curecycle.h \
-    utilities.h
+    utilities.h \
+    qcustomplot.h
 
 FORMS += \
         mainwindow.ui \
