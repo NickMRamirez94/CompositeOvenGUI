@@ -112,13 +112,6 @@ void MainWindow::on_actionCreate_New_Cure_Cycle_triggered()
 ///
 void MainWindow::on_actionSend_Data_triggered()
 {
-    //List names of ports
-    for (QSerialPortInfo port : QSerialPortInfo::availablePorts())
-    {
-        //Their is some sorting to do for just list the port I want, with vendor Id & product Id
-        qDebug() << port.portName() << port.vendorIdentifier() << port.productIdentifier()
-                 << port.hasProductIdentifier() << port.hasVendorIdentifier() << port.isBusy();
-    }
     //Verify that there is an exisiting cure cycle
     if( CheckTabWidget() )
     {
@@ -459,12 +452,17 @@ void MainWindow::updateCombo( int index )
 ///
 /// \brief MainWindow::GetTableWidget
 /// \return - Pointer to QTableWidget on current tab
+/// Searches children for QTableWidget of the active tab on the QTabWidget.
 ///
 inline QTableWidget * MainWindow::GetTableWidget()
 {
     return cureCycleTabWidget->widget( cureCycleTabWidget->currentIndex() )->findChild<QTableWidget *>();
 }
 
+///
+/// \brief MainWindow::CheckTabWidget
+/// \return - True if there is at least one tab on QTabWidget false otherwise.
+///
 inline bool MainWindow::CheckTabWidget()
 {
     return cureCycleTabWidget->count();

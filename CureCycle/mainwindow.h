@@ -156,6 +156,9 @@ private:
     ///
     GraphDialog *graph_dialog_;
 
+    ///
+    /// \brief cycle_names_
+    /// List of the cycle names on the QTabWidget.
     QStringList cycle_names_;
 
     ///
@@ -184,8 +187,17 @@ private:
     ///
     QTableWidget * InitializeTable( const QString &cycle_name, const QString &temperature, const QString &rate );
 
+    ///
+    /// \brief GetTableWidget
+    /// \return - Pointer to QTableWidget.
+    /// Returns a pointer to the QTableWidget on the active tab.
     inline  QTableWidget * GetTableWidget();
 
+    ///
+    /// \brief CheckTabWidget
+    /// \return - True if there is at least one tab on the QTabWidget false otherwise.
+    /// Checks to verify if there is at least one tab on the QTabWidget.
+    ///
     inline bool CheckTabWidget();
 };
 
