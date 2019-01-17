@@ -72,7 +72,7 @@ void MainWindow::on_actionSave_Cure_Cycle_triggered()
     QTableWidget * table = GetTableWidget();
     if( table )
     {
-        QStringList cure_cycle_data = Utilities::GetData( GetTableWidget() );
+        QStringList cure_cycle_data = Utilities::GetDataFromTable( GetTableWidget() );
         QString file_path = QFileDialog::getSaveFileName( this, "Save Cure Cycle", QDir::homePath() );
         QString cycle_name = cycle_names_[cureCycleTabWidget->currentIndex()];
         Utilities::SaveData( cure_cycle_data, cycle_name, file_path );
@@ -107,7 +107,7 @@ void MainWindow::on_actionCreate_New_Cure_Cycle_triggered()
 
 ///
 /// \brief MainWindow::on_actionSend_Data_triggered
-/// - Uses Utilities::SendData() to send cure cycle data on current
+/// - Uses Utilities::SendDataToController() to send cure cycle data on current
 /// QTabWidet to composite oven.
 ///
 void MainWindow::on_actionSend_Data_triggered()
@@ -118,7 +118,7 @@ void MainWindow::on_actionSend_Data_triggered()
         QMessageBox::StandardButton reply = QMessageBox::question( this, "", "Is Oven Ready?", QMessageBox::Yes|QMessageBox::No );
         if( reply == QMessageBox::Yes )
         {
-            Utilities::SendData( cycle_names_[cureCycleTabWidget->currentIndex()], Utilities::GetData( GetTableWidget() ) );
+            Utilities::SendDataToController( cycle_names_[cureCycleTabWidget->currentIndex()], Utilities::GetDataFromTable( GetTableWidget() ) );
         }
     }
 }

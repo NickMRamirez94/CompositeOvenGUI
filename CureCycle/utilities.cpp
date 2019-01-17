@@ -103,7 +103,7 @@ void Utilities::LoadData( const QStringList &data )
 /// - Format data to following: Opcode (Char) 1 byte Rate 2 bytes (limited to max of 10) for HOLD TIME Temperature 2 bytes (max 450) for HOLD 0
 /// - Send data through serial port.
 ///
-bool Utilities::SendData( const QString &name, const QStringList &data )
+bool Utilities::SendDataToController( const QString &name, const QStringList &data )
 {
     bool port_ready = false;
     QString port_name;
@@ -124,11 +124,16 @@ bool Utilities::SendData( const QString &name, const QStringList &data )
 
         if( serial.open( QIODevice::WriteOnly ) )
         {
-            serial.setBaudRate( QSerialPort::Baud115200 );
+            serial.setBaudRate( QSerialPort::Baud9600 );
             serial.setDataBits( QSerialPort::Data8 );
             serial.setParity( QSerialPort::NoParity );
             serial.setStopBits( QSerialPort::OneStop );
             serial.setFlowControl( QSerialPort::NoFlowControl );
+
+//            for(int i = 0; i < 1000; i++)
+//            {
+////                qDebug() << serial.write( "1" );
+//            }
 
             //Send name with space filler if needed
             const int max_length = 20;
@@ -196,6 +201,47 @@ bool Utilities::SendData( const QString &name, const QStringList &data )
     return port_ready;
 }
 
+bool Utilities::GetDataFromController()
+{
+    bool port_ready = false;
+    QString port_name;
+    for (QSerialPortInfo port : QSerialPortInfo::availablePorts())
+    {
+
+        if( port.vendorIdentifier() == usbtouart_vendor_identifier && port.productIdentifier() == usbtouart_product_identifier )
+        {
+            port_ready = true;
+            port_name = port.portName();
+        }
+    }
+
+    if( port_ready )
+    {
+        QSerialPort serial;
+        serial.setPortName( port_name );
+
+        if( serial.open( QIODevice::ReadOnly ) )
+        {
+            serial.setBaudRate( QSerialPort::Baud115200 );
+            serial.setDataBits( QSerialPort::Data8 );
+            serial.setParity( QSerialPort::NoParity );
+            serial.setStopBits( QSerialPort::OneStop );
+            serial.setFlowControl( QSerialPort::NoFlowControl );
+
+            serial.close();
+        }
+        else
+        {
+            port_ready = false;
+        }
+    }
+    else
+    {
+        qDebug() << "Serial Port failed to open";
+    }
+    return port_ready;
+}
+
 ///
 /// \brief Utilities::GetData
 /// \param table - Pointer to the QTableWidget with the data.
@@ -206,7 +252,7 @@ bool Utilities::SendData( const QString &name, const QStringList &data )
 /// - Get rate/time from QTableWidgetItem.
 /// - Append to list.
 ///
-QStringList Utilities::GetData( const QTableWidget * table )
+QStringList Utilities::GetDataFromTable( const QTableWidget * table )
 {
     QStringList cure_cycle_data;
     QString cycle_stage;

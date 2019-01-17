@@ -38,7 +38,9 @@ public:
     /// \return - True if successful false otherwise.
     /// Sends data to the USB to UART module.
     ///
-    static bool SendData( const QString &name, const QStringList &data );
+    static bool SendDataToController( const QString &name, const QStringList &data );
+
+    static bool GetDataFromController();
 
     ///
     /// \brief GetData
@@ -46,7 +48,7 @@ public:
     /// \return - List of the data from QTableWidget.
     /// Retrieves the data from the QTableWidget.
     ///
-    static QStringList GetData( const QTableWidget * table );
+    static QStringList GetDataFromTable( const QTableWidget * table );
 
     ///
     /// \brief CheckNumber
