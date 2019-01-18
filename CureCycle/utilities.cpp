@@ -8,6 +8,7 @@
 #include <QtSerialPort/QSerialPort>
 #include <QSerialPortInfo>
 #include <QDebug>
+#include <QtEndian>
 
 Utilities::Utilities()
 {
@@ -130,16 +131,11 @@ bool Utilities::SendDataToController( const QString &name, const QStringList &da
             serial.setStopBits( QSerialPort::OneStop );
             serial.setFlowControl( QSerialPort::NoFlowControl );
 
-//            for(int i = 0; i < 1000; i++)
-//            {
-////                qDebug() << serial.write( "1" );
-//            }
-
             //Send name with space filler if needed
             const int max_length = 20;
             QByteArray name_byte = name.toLocal8Bit();
             const char * name_serial = name_byte.data();
-            serial.write( name_serial, max_length );
+            serial.write( name_serial );
 
             int fill_bytes = 0;
             if( name.length() < max_length )
@@ -169,22 +165,30 @@ bool Utilities::SendDataToController( const QString &name, const QStringList &da
 
                 quint16 temperature_int = temperature.toUShort();
                 quint16 rate_time_int = rate_time.toUShort();
-                QByteArray temperature_byte;
-                QByteArray rate_time_byte;
-                temperature_byte.setNum( temperature_int );
-                rate_time_byte.setNum( rate_time_int );
+                temperature_int = qToBigEndian(temperature_int);
+                rate_time_int = qToBigEndian(rate_time_int);
+                QByteArray temperature_byte(reinterpret_cast<const char *>(&temperature_int), sizeof(quint16));
+                QByteArray rate_time_byte(reinterpret_cast<const char *>(&rate_time_int), sizeof(quint16));
+//                temperature_byte.setNum( temperature_int );
+//                rate_time_byte.setNum( rate_time_int );
 
                 if( stage_type == "H" )
                 {
                     serial.write( type_serial, 1 );
-                    serial.write( rate_time_byte );
-                    serial.write( hold_filler );
+                    serial.waitForBytesWritten(-1);
+                    serial.write( rate_time_byte.data(), 2 );
+                    serial.waitForBytesWritten(-1);
+                    serial.write( hold_filler.data(), 2 );
+                    serial.waitForBytesWritten(-1);
                 }
                 else
                 {
                     serial.write( type_serial, 1 );
-                    serial.write( rate_time_byte );
-                    serial.write( temperature_byte );
+                    serial.waitForBytesWritten(-1);
+                    serial.write( rate_time_byte.data(), 2 );
+                    serial.waitForBytesWritten(-1);
+                    serial.write( temperature_byte.data(), 2 );
+                    serial.waitForBytesWritten(-1);
                 }
             }
             serial.close();

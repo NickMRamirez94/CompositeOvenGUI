@@ -15,6 +15,7 @@
 #include <QLabel>
 #include <QSerialPortInfo>
 #include <QList>
+#include <QtSerialPort/QSerialPort>
 
 //Custom Files
 #include "curecycle.h"

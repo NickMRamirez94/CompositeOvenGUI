@@ -32,6 +32,8 @@ private:
     /// Instnace of the GraphDialog
     ///
     Ui::GraphDialog *ui;
+
+    void CreateGraph( const QString &file_path );
 };
 
 #endif // GRAPHDIALOG_H

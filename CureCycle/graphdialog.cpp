@@ -21,3 +21,8 @@ GraphDialog::~GraphDialog()
 {
     delete ui;
 }
+
+void GraphDialog::CreateGraph( const QString &file_path )
+{
+
+}
