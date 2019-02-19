@@ -76,7 +76,7 @@ void MainWindow::on_actionSave_Cure_Cycle_triggered()
         QStringList cure_cycle_data = Utilities::GetDataFromTable( GetTableWidget() );
         QString file_path = QFileDialog::getSaveFileName( this, "Save Cure Cycle", QDir::homePath() );
         QString cycle_name = cycle_names_[cureCycleTabWidget->currentIndex()];
-        Utilities::SaveData( cure_cycle_data, cycle_name, file_path );
+        Utilities::SaveCureCycleData( cure_cycle_data, cycle_name, file_path );
     }
 }
 
@@ -143,17 +143,36 @@ void MainWindow::create_new_cycle( QStringList data )
 
 ///
 /// \brief MainWindow::on_actionGraph_triggered
-/// - Trigget QFileDialog to get the file path.
-/// - Create instance of GraphDialog passing that retrieved file path.
 ///
+/// TODO: - Utilities::GetTemperatureData()
 void MainWindow::on_actionGraph_triggered()
 {
-    QString file_path = QFileDialog::getOpenFileName( this, "Load Graph Health Data", QDir::homePath() );
-    if( !file_path.isEmpty() )
+    QMessageBox message_box;
+    message_box.setText( tr( "Uploaded New Data or Use Existing Data?" ) );
+    QAbstractButton * new_data_button = message_box.addButton(tr("New Data"), QMessageBox::YesRole);
+    message_box.addButton(tr("Existing Data"), QMessageBox::NoRole);
+    message_box.exec();
+
+    if (message_box.clickedButton() == new_data_button)
     {
-        graph_dialog_ = new GraphDialog ( this, file_path );
+        graph_dialog_ = new GraphDialog ( this );
         graph_dialog_->show();
     }
+    else
+    {
+        QString file_path = QFileDialog::getOpenFileName( this, "Load Temperature Data", QDir::homePath() );
+        if( !file_path.isEmpty() )
+        {
+            graph_dialog_ = new GraphDialog ( this, file_path );
+            graph_dialog_->show();
+        }
+    }
+//    QMessageBox::StandardButton reply = QMessageBox::question( this, "", "Upload New Data or Use Existing Data?", QMessageBox::Yes|QMessageBox::No );
+//    if( reply == QMessageBox::Yes )
+//    {
+//        graph_dialog_ = new GraphDialog ( this );
+//        graph_dialog_->show();
+//    }
 }
 
 ///

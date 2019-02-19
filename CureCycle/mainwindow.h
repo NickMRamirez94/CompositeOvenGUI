@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QTableWidget>
+#include <QtSerialPort/QtSerialPort>
+
 #include "curecycledialog.h"
 #include "graphdialog.h"
 
@@ -148,18 +150,24 @@ private:
     /// \brief cure_cycle_dialog_
     /// Instance of the Cure Cycle Dialog.
     ///
-    CureCycleDialog *cure_cycle_dialog_;
+    CureCycleDialog * cure_cycle_dialog_;
 
     ///
     /// \brief graph_dialog_
     /// Instance of the Graph Dialog.
     ///
-    GraphDialog *graph_dialog_;
+    GraphDialog * graph_dialog_;
 
     ///
     /// \brief cycle_names_
     /// List of the cycle names on the QTabWidget.
     QStringList cycle_names_;
+
+    QSerialPort * serial_;
+
+    QTimer * timer_;
+
+    QByteArray * temperature_data_;
 
     ///
     /// \brief MainWindow::readFile

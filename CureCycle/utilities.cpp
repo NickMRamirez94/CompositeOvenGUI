@@ -26,7 +26,7 @@ Utilities::Utilities()
 /// - Output header and cure cycle name.
 /// - For each stage in data output data to file.
 ///
-bool Utilities::SaveData( const QStringList &data, const QString &name, const QString &file_path )
+bool Utilities::SaveCureCycleData( const QStringList &data, const QString &name, const QString &file_path )
 {
     if( file_path.isEmpty() || data.isEmpty() )
     {
@@ -52,6 +52,32 @@ bool Utilities::SaveData( const QStringList &data, const QString &name, const QS
         file.close();
     }
     return true;
+}
+
+bool Utilities::SaveTemperatureData( const QByteArray &temperature_data )
+{
+    bool status = false;
+    QString cure_cycle_name;
+
+    for( int i = 0; i < 20; i++ )
+    {
+        cure_cycle_name.append( temperature_data[i] );
+    }
+    cure_cycle_name.remove( " " );
+
+    //Create temperaturedata subdirectory
+    QDir().mkdir( QDir::homePath() + "temperaturedata" );
+    QString file_path = cure_cycle_name.append( ".DAT");
+    file_path.push_front( QDir::homePath() + "/temperaturedata/" );
+
+    QFile file( file_path );
+    if( file.open( QFile::WriteOnly ))
+    {
+        status = true;
+        file.write( temperature_data );
+        file.close();
+    }
+    return status;
 }
 
 ///
@@ -162,15 +188,12 @@ bool Utilities::SendDataToController( const QString &name, const QStringList &da
                 //Format the data
                 QByteArray type_byte = stage_type.toLocal8Bit();
                 char * type_serial = type_byte.data();
-
                 quint16 temperature_int = temperature.toUShort();
                 quint16 rate_time_int = rate_time.toUShort();
                 temperature_int = qToBigEndian(temperature_int);
                 rate_time_int = qToBigEndian(rate_time_int);
                 QByteArray temperature_byte(reinterpret_cast<const char *>(&temperature_int), sizeof(quint16));
                 QByteArray rate_time_byte(reinterpret_cast<const char *>(&rate_time_int), sizeof(quint16));
-//                temperature_byte.setNum( temperature_int );
-//                rate_time_byte.setNum( rate_time_int );
 
                 if( stage_type == "H" )
                 {
@@ -191,47 +214,6 @@ bool Utilities::SendDataToController( const QString &name, const QStringList &da
                     serial.waitForBytesWritten(-1);
                 }
             }
-            serial.close();
-        }
-        else
-        {
-            port_ready = false;
-        }
-    }
-    else
-    {
-        qDebug() << "Serial Port failed to open";
-    }
-    return port_ready;
-}
-
-bool Utilities::GetDataFromController()
-{
-    bool port_ready = false;
-    QString port_name;
-    for (QSerialPortInfo port : QSerialPortInfo::availablePorts())
-    {
-
-        if( port.vendorIdentifier() == usbtouart_vendor_identifier && port.productIdentifier() == usbtouart_product_identifier )
-        {
-            port_ready = true;
-            port_name = port.portName();
-        }
-    }
-
-    if( port_ready )
-    {
-        QSerialPort serial;
-        serial.setPortName( port_name );
-
-        if( serial.open( QIODevice::ReadOnly ) )
-        {
-            serial.setBaudRate( QSerialPort::Baud115200 );
-            serial.setDataBits( QSerialPort::Data8 );
-            serial.setParity( QSerialPort::NoParity );
-            serial.setStopBits( QSerialPort::OneStop );
-            serial.setFlowControl( QSerialPort::NoFlowControl );
-
             serial.close();
         }
         else
@@ -329,4 +311,31 @@ bool Utilities::CheckName( const QString &name )
     }
 
     return status;
+}
+
+QString Utilities::GetPortName()
+{
+    QString port_name;
+
+    for (QSerialPortInfo port : QSerialPortInfo::availablePorts())
+    {
+
+        if( port.vendorIdentifier() == usbtouart_vendor_identifier && port.productIdentifier() == usbtouart_product_identifier )
+        {
+            port_name = port.portName();
+        }
+    }
+
+    return port_name;
+}
+
+quint16 Utilities::PrepNumber( quint8 msb, quint8 lsb )
+{
+    lsb = qToBigEndian( lsb );
+    msb = qToBigEndian( msb );
+    quint16 number;
+    number = msb;
+    number <<= 8;
+    number |= lsb;
+    return number;
 }

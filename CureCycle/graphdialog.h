@@ -2,6 +2,8 @@
 #define GRAPHDIALOG_H
 
 #include <QDialog>
+#include <QtSerialPort/QSerialPort>
+#include <QTimer>
 
 namespace Ui {
 class GraphDialog;
@@ -18,7 +20,7 @@ public:
     /// \param file_path
     /// Constructor
     ///
-    explicit GraphDialog( QWidget *parent = nullptr, const QString &file_path = "");
+    explicit GraphDialog( QWidget *parent = nullptr, const QString & file_path = "" );
 
     ///
     /// \brief GraphDialog::~GraphDialog
@@ -26,14 +28,31 @@ public:
     ///
     ~GraphDialog();
 
-private:
+private slots:
+    void ReadSerial();
+
+    void DoneReading();
+
+
+private:    
+    void CreateGraph();
+
     ///
     /// \brief ui
     /// Instnace of the GraphDialog
     ///
     Ui::GraphDialog *ui;
 
-    void CreateGraph( const QString &file_path );
+    QByteArray * temperature_data_;
+
+    QString * serial_port_name_;
+
+    QSerialPort * serial_;
+
+    QTimer * timer_;
+
+    bool ReadTemperatureData( const QString & file_path );
+
 };
 
 #endif // GRAPHDIALOG_H

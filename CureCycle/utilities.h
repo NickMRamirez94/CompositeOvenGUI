@@ -17,7 +17,9 @@ public:
     /// \return - True if successful false otherwise.
     /// Save the specified data to the specified file.
     ///
-    static bool SaveData( const QStringList &data, const QString &name, const QString &file_path );
+    static bool SaveCureCycleData( const QStringList &data, const QString &name, const QString &file_path );
+
+    static bool SaveTemperatureData( const QByteArray &temperature_data );
 
     ///
     /// \brief ReadFile
@@ -39,8 +41,6 @@ public:
     /// Sends data to the USB to UART module.
     ///
     static bool SendDataToController( const QString &name, const QStringList &data );
-
-    static bool GetDataFromController();
 
     ///
     /// \brief GetData
@@ -66,6 +66,10 @@ public:
     ///
     static bool CheckName( const QString &name );
 
+    static QString GetPortName();
+
+    static quint16 PrepNumber( quint8 msb, quint8 lsb );
+
 private:
     ///
     /// \brief usbtouart_product_identifier
@@ -78,6 +82,7 @@ private:
     /// Vendor identifier for USB to UART module.
     ///
     static const quint16 usbtouart_vendor_identifier = 4292;
+
 };
 
 #endif // UTILITIES_H
