@@ -87,8 +87,6 @@ void GraphDialog::DoneReading()
     CreateGraph();
 }
 
-// TODO:
-//     - TOO MANY DATA POINTS
 void GraphDialog::CreateGraph()
 {
     const int max_temperature = 375;
