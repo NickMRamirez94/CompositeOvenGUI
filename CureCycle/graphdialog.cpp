@@ -128,18 +128,29 @@ void GraphDialog::CreateGraph()
     }
     name = name.simplified();
 
-    //Setup QChart with axis and title
-    QChart * chart = new QChart();
-    chart->legend()->setAlignment(  Qt::AlignBottom );
+    //TEMPERATURE CHART
+    QChart * temperature_chart = new QChart();
+    temperature_chart->legend()->setAlignment(  Qt::AlignBottom );
 //    chart->addSeries( part_series );
-    chart->addSeries( ambient_series );
-    chart->createDefaultAxes();
-    chart->axes(Qt::Horizontal).first()->setRange(0, second);
-    chart->axes(Qt::Vertical).first()->setRange(0, max_temperature);
-    chart->setTitle( name + " Temperature Data" );
-    QChartView * chart_view = new QChartView( chart );
-    chart_view->setRenderHint(QPainter::Antialiasing);
-    ui->main_layout->addWidget( chart_view );
+    temperature_chart->addSeries( ambient_series );
+    temperature_chart->createDefaultAxes();
+    temperature_chart->axes(Qt::Horizontal).first()->setRange(0, second);
+    temperature_chart->axes(Qt::Horizontal).first()->setTitleText("Time (Seconds)");
+    temperature_chart->axes(Qt::Vertical).first()->setRange(0, max_temperature);
+    temperature_chart->axes(Qt::Vertical).first()->setTitleText("Temperature (Fahrenheit)");
+    temperature_chart->setTitle( name + " Temperature Data" );
+    QChartView * temperature_chart_view = new QChartView( temperature_chart );
+    temperature_chart_view->setRenderHint(QPainter::Antialiasing);
+
+    //PRESSURE CHART
+    QChart * pressure_chart = new QChart();
+    pressure_chart->legend()->setAlignment(  Qt::AlignBottom );
+    pressure_chart->setTitle( name + " Pressure Data" );
+    QChartView * pressure_chart_view = new QChartView( pressure_chart );
+    pressure_chart_view->setRenderHint(QPainter::Antialiasing);
+
+    ui->scrollArea_layout->addWidget( temperature_chart_view );
+    ui->scrollArea_layout->addWidget( pressure_chart_view );
 }
 
 bool GraphDialog::ReadTemperatureData( const QString & file_path )
