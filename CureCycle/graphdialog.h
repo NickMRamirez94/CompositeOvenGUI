@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QtSerialPort/QSerialPort>
 #include <QTimer>
+#include <QMessageBox>
 
 namespace Ui {
 class GraphDialog;
@@ -37,6 +38,10 @@ private slots:
 private:    
     void CreateGraph();
 
+    inline void CreateReceivingDataMessageBox();
+
+    inline void CloseReceivingDataMessageBox();
+
     ///
     /// \brief ui
     /// Instnace of the GraphDialog
@@ -52,6 +57,8 @@ private:
     QTimer * timer_;
 
     bool ReadTemperatureData( const QString & file_path );
+
+    QMessageBox * receiving_data_message_box_;
 
 };
 

@@ -42,6 +42,7 @@ GraphDialog::GraphDialog( QWidget *parent, const QString & file_path ) :
                 serial_->setFlowControl( QSerialPort::NoFlowControl );
 
                 timer_ = new QTimer( this );
+                receiving_data_message_box_ = nullptr;
 
                 connect( serial_, SIGNAL( readyRead() ),  SLOT( ReadSerial() ) );
                 connect( timer_, SIGNAL( timeout() ), SLOT( DoneReading() ) );
@@ -76,12 +77,15 @@ GraphDialog::~GraphDialog()
 
 void GraphDialog::ReadSerial()
 {
+    if(receiving_data_message_box_ == nullptr) CreateReceivingDataMessageBox();
     timer_->start( 2000 );
     temperature_data_->append( serial_->readAll() );
 }
 
 void GraphDialog::DoneReading()
 {
+    CloseReceivingDataMessageBox();
+    timer_->stop();
     serial_->close();
     Utilities::SaveTemperatureData( *temperature_data_ );
     CreateGraph();
@@ -95,24 +99,36 @@ void GraphDialog::CreateGraph()
     ambient_series->setName( "Ambient Temperature" );
     part_series->setName( "Part Temperature" );
 
-    QByteArray::iterator ptr = temperature_data_->begin();
+    auto ptr = temperature_data_->begin();
     int second = 0;
 
     //Extract the data
     //Skip the name of the cure cycle
-    //ptr + 32 - Only plot one point per second instead of four samples per second
-    for( std::advance( ptr, 20 ); ptr < temperature_data_->end(); ptr = ptr + 32 )
+    //ptr + 16 - Only plot one point per second instead of two samples per second
+    for( std::advance( ptr, 20 ); ptr < temperature_data_->end(); ptr = ptr + 8 )
     {
         //Part Temperature Data
         quint16 part_temp_one = Utilities::PrepNumber( *ptr, *(ptr + 1) );
         quint16 part_temp_two = Utilities::PrepNumber( *(ptr + 2), *(ptr + 3) );
         quint16 part_temp_average = ( part_temp_one + part_temp_two ) / 2;
+
+        //TODO: This if statement added in for celcius in log mistake
+        if(second < 3813)
+        {
+            part_temp_average = (static_cast<float>(part_temp_average) * 1.8) + 32;
+        }
         part_series->append( second, part_temp_average );
 
         //Ambient Temperature Data
         quint16 ambient_temp_one = Utilities::PrepNumber( *(ptr + 4), *(ptr + 5) );
         quint16 ambient_temp_two = Utilities::PrepNumber( *(ptr + 6), *(ptr + 7) );
         quint16 ambient_temp_average = ( ambient_temp_one + ambient_temp_two ) / 2;
+
+        //TODO: This if statement added in for celcius in log mistake
+        if(second < 3813)
+        {
+            ambient_temp_average = (static_cast<float>(ambient_temp_average) * 1.8) + 32;
+        }
         ambient_series->append( second, ambient_temp_average );
 
         second++;
@@ -131,7 +147,7 @@ void GraphDialog::CreateGraph()
     //TEMPERATURE CHART
     QChart * temperature_chart = new QChart();
     temperature_chart->legend()->setAlignment(  Qt::AlignBottom );
-//    chart->addSeries( part_series );
+    temperature_chart->addSeries( part_series );
     temperature_chart->addSeries( ambient_series );
     temperature_chart->createDefaultAxes();
     temperature_chart->axes(Qt::Horizontal).first()->setRange(0, second);
@@ -141,6 +157,7 @@ void GraphDialog::CreateGraph()
     temperature_chart->setTitle( name + " Temperature Data" );
     QChartView * temperature_chart_view = new QChartView( temperature_chart );
     temperature_chart_view->setRenderHint(QPainter::Antialiasing);
+    temperature_chart_view->setRubberBand(QChartView::RectangleRubberBand);
 
     //PRESSURE CHART
     QChart * pressure_chart = new QChart();
@@ -150,7 +167,7 @@ void GraphDialog::CreateGraph()
     pressure_chart_view->setRenderHint(QPainter::Antialiasing);
 
     ui->scrollArea_layout->addWidget( temperature_chart_view );
-    ui->scrollArea_layout->addWidget( pressure_chart_view );
+//    ui->scrollArea_layout->addWidget( pressure_chart_view );
 }
 
 bool GraphDialog::ReadTemperatureData( const QString & file_path )
@@ -165,4 +182,16 @@ bool GraphDialog::ReadTemperatureData( const QString & file_path )
     }
 
     return status;
+}
+
+inline void GraphDialog::CreateReceivingDataMessageBox()
+{
+    receiving_data_message_box_ = new QMessageBox(this);
+    receiving_data_message_box_->setText("Receiving Data.....");
+}
+
+inline void GraphDialog::CloseReceivingDataMessageBox()
+{
+    receiving_data_message_box_->close();
+    delete receiving_data_message_box_;
 }
