@@ -111,24 +111,12 @@ void GraphDialog::CreateGraph()
         quint16 part_temp_one = Utilities::PrepNumber( *ptr, *(ptr + 1) );
         quint16 part_temp_two = Utilities::PrepNumber( *(ptr + 2), *(ptr + 3) );
         quint16 part_temp_average = ( part_temp_one + part_temp_two ) / 2;
-
-        //TODO: This if statement added in for celcius in log mistake
-        if(second < 3813)
-        {
-            part_temp_average = (static_cast<float>(part_temp_average) * 1.8) + 32;
-        }
         part_series->append( second, part_temp_average );
 
         //Ambient Temperature Data
         quint16 ambient_temp_one = Utilities::PrepNumber( *(ptr + 4), *(ptr + 5) );
         quint16 ambient_temp_two = Utilities::PrepNumber( *(ptr + 6), *(ptr + 7) );
         quint16 ambient_temp_average = ( ambient_temp_one + ambient_temp_two ) / 2;
-
-        //TODO: This if statement added in for celcius in log mistake
-        if(second < 3813)
-        {
-            ambient_temp_average = (static_cast<float>(ambient_temp_average) * 1.8) + 32;
-        }
         ambient_series->append( second, ambient_temp_average );
 
         second++;
