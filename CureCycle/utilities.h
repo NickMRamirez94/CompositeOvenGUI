@@ -19,18 +19,24 @@ public:
     ///
     static bool SaveCureCycleData( const QStringList &data, const QString &name, const QString &file_path );
 
+    ///
+    /// \brief SaveTemperatureData
+    /// \param temperature_data the temperature data to save
+    /// \return true is successful. False otherwise
+    /// Saves the passed in temperature data
+    ///
     static bool SaveTemperatureData( const QByteArray &temperature_data );
 
     ///
     /// \brief ReadFile
-    /// \param file_path
-    /// \return
+    /// \param file_path the path to the file to read.
+    /// \return true is successful. False otherwise.
     ///
     static bool ReadFile( const QString &file_path );
 
     ///
     /// \brief LoadData
-    /// \param data
+    /// \param
     ///
     static void LoadData( const QStringList &data );
 
@@ -66,8 +72,19 @@ public:
     ///
     static bool CheckName( const QString &name );
 
+    ///
+    /// \brief GetPortName
+    /// \return QString of the port name
+    /// Returns port name of USB to UART device
     static QString GetPortName();
 
+    ///
+    /// \brief PrepNumber
+    /// \param msb most significant byte.
+    /// \param lsb least signifcant byte
+    /// \return merged 16 bit number.
+    /// Merges MSB and LSB into one 2 byte nubmer.
+    ///
     static quint16 PrepNumber( quint8 msb, quint8 lsb );
 
 private:
