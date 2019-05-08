@@ -70,4 +70,4 @@ If qmake is not found by default you'll need to specifiy the path to the executa
 
 ## How to Use
 
-
+Upon launching the application the File and Tools sections on the MenuBar will provide the user with all necessary functions that can be performed.
