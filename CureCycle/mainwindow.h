@@ -119,6 +119,11 @@ private slots:
     void updateCombo( int index );
 
 private:
+
+    ///
+    /// \brief The StageType enum
+    /// Specifies the stage type for the QComboBox
+    ///
     enum StageType
     {
         kRamp,
@@ -126,6 +131,10 @@ private:
         kDeramp
     };
 
+    ///
+    /// \brief The Column enum
+    /// Specifies columns on QTableWidget for cure cycle building
+    ///
     enum Column
     {
         kStageTypeColumn = 0,
@@ -163,10 +172,19 @@ private:
     /// List of the cycle names on the QTabWidget.
     QStringList cycle_names_;
 
+    ///
+    /// \brief serial_
+    ///
     QSerialPort * serial_;
 
+    ///
+    /// \brief timer_
+    ///
     QTimer * timer_;
 
+    ///
+    /// \brief temperature_data_
+    ///
     QByteArray * temperature_data_;
 
     ///

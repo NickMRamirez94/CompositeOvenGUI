@@ -65,10 +65,10 @@ bool Utilities::SaveTemperatureData( const QByteArray &temperature_data )
     }
     cure_cycle_name.remove( " " );
 
-    //Create temperaturedata subdirectory
-    QDir().mkdir( QDir::homePath() + "temperaturedata" );
+    //Create OvenMitTemperatureData subdirectory
+    QDir().mkdir( QDir::homePath() + "/OvenMitTemperatureData" );
     QString file_path = cure_cycle_name.append( ".DAT");
-    file_path.push_front( QDir::homePath() + "/temperaturedata/" );
+    file_path.push_front( QDir::homePath() + "/OvenMitTemperatureData/" );
 
     QFile file( file_path );
     if( file.open( QFile::WriteOnly ))

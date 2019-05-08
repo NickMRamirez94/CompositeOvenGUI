@@ -29,12 +29,12 @@ public:
 private slots:
     ///
     /// \brief CureCycleDialog::on_doneButton_clicked
-    /// Slot that performs action when done button is clicked.
+    /// Slot that emits signal for MainWindow to catch. Contains stage info.
     void on_doneButton_clicked();
 
     ///
     /// \brief CureCycleDialog::on_cancelButton_clicked
-    /// Slot that performs action when cancel button is clicked.
+    /// Slot that closes dialog.
     ///
     void on_cancelButton_clicked();
 
